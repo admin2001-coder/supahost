@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: allow-traefik-to-public-services
+  namespace: tenant-acme-7f3a
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app
+        operator: In
+        values: ["kong", "studio"]
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik-system
