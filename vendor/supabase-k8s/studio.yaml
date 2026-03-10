@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: studio
+  namespace: tenant-acme-7f3a
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: studio
+  template:
+    metadata:
+      labels:
+        app: studio
+        supahost.io/tenant-id: acme-7f3a
+    spec:
+      serviceAccountName: tenant-sa
+      containers:
+        - name: studio
+          image: supabase/studio:latest
+          ports:
+            - containerPort: 3000
+          env:
+            - name: STUDIO_PG_META_URL
+              value: http://meta:8080
+            - name: SUPABASE_URL
+              value: https://acme-7f3a.supabase.example.com
+            - name: SUPABASE_PUBLIC_URL
+              value: https://acme-7f3a.supabase.example.com
+            - name: DASHBOARD_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: tenant-secrets
+                  key: DASHBOARD_USERNAME
+            - name: DASHBOARD_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: tenant-secrets
+                  key: DASHBOARD_PASSWORD
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: studio
+  namespace: tenant-acme-7f3a
+spec:
+  selector:
+    app: studio
+  ports:
+    - name: http
+      port: 3000
+      targetPort: 3000
