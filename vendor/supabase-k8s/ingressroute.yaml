@@ -1,0 +1,39 @@
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: tenant-api
+  namespace: tenant-acme-7f3a
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`acme-7f3a.supabase.example.com`)
+      kind: Rule
+      middlewares:
+        - name: security-headers
+        - name: gzip
+      services:
+        - name: kong
+          port: 8000
+  tls:
+    secretName: wildcard-example-com-tls
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: tenant-studio
+  namespace: tenant-acme-7f3a
+spec:
+  entryPoints:
+    - websecure
+  routes:
+    - match: Host(`acme-7f3a.studio.example.com`)
+      kind: Rule
+      middlewares:
+        - name: security-headers
+        - name: gzip
+      services:
+        - name: studio
+          port: 3000
+  tls:
+    secretName: wildcard-example-com-tls
